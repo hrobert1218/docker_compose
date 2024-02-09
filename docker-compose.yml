@@ -1,0 +1,35 @@
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysqlasd
+    ports:
+      - 3307:3306
+#    networks:
+#      - app-net
+    environment:
+      MYSQL_ROOT_PASSWORD: asdf
+      MYSQL_DATABASE: cat
+    restart: unless-stopped
+    healthcheck:
+      test: "/usr/bin/mysql --user=root --password=$$MYSQL_ROOT_PASSWORD --execute \"SHOW DATABASES;\""
+      interval: 10s
+      timeout: 2s
+      retries: 10
+  app:
+    image: rob6723/springsql-app
+    container_name: app
+#    networks:
+#      - app-net
+    environment:
+      MYSQL_ROOT_PASSWORD: asdf
+      MYSQL_HOST: mysqlasd
+      MYSQL_PORT: 3306
+    ports:
+      - 8080:8080
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+#networks:
+#  app-net:
+#    name: app-net
